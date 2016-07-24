@@ -118,13 +118,34 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="App_FullName" xml:space="preserve">
-    <value>MCE Controller</value>
+    <value>MCE Controller (Josh's Fork)</value>
+  </data>
+  <data name="Copyright" xml:space="preserve">
+    <value>© 2014 Kindel Systems, LLC.</value>
+  </data>
+  <data name="Copyright_Link" xml:space="preserve">
+    <value>http://www.kindel.com</value>
+  </data>
+  <data name="HomePage_Label" xml:space="preserve">
+    <value>MCE Controller website</value>
+  </data>
+  <data name="HomePage_Link" xml:space="preserve">
+    <value>http://mcec.codeplex.com</value>
+  </data>
+  <data name="License_Label" xml:space="preserve">
+    <value>License Agreement</value>
+  </data>
+  <data name="License_Link" xml:space="preserve">
+    <value>http://mcec.codeplex.com/license</value>
+  </data>
+  <data name="License_Summary" xml:space="preserve">
+    <value>MCE Controller is distributed as freeware and published as open source under the MIT License.</value>
   </data>
   <data name="MCEController_commands_read_error" xml:space="preserve">
     <value>No commands loaded. Something is wrong with the MCEController.commands file. See the log for details, fix, and restart.</value>
   </data>
   <data name="MCE_Controller_Version_label" xml:space="preserve">
-    <value>MCE Controller Version </value>
+    <value>{0} v{1}</value>
   </data>
   <data name="SettingsDialog_CheckDisableInternalCommands_Restart_MCE_Controller_for_change_to_take_effect_" xml:space="preserve">
     <value>Restart MCE Controller for change to take effect.</value>
