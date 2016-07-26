@@ -157,8 +157,7 @@ namespace MCEControl {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources =
-                new System.ComponentModel.ComponentResourceManager(typeof (MainWindow));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this._mainMenu = new System.Windows.Forms.MainMenu(this.components);
             this._menuItemFileMenu = new System.Windows.Forms.MenuItem();
             this._menuItemSendAwake = new System.Windows.Forms.MenuItem();
@@ -170,8 +169,10 @@ namespace MCEControl {
             this._menuItemHelpMenu = new System.Windows.Forms.MenuItem();
             this._menuItemHelp = new System.Windows.Forms.MenuItem();
             this._menuItemSupport = new System.Windows.Forms.MenuItem();
-            this._menuItemAbout = new System.Windows.Forms.MenuItem();
+            this.menuItem2 = new System.Windows.Forms.MenuItem();
             this._menuItemCheckVersion = new System.Windows.Forms.MenuItem();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this._menuItemAbout = new System.Windows.Forms.MenuItem();
             this._statusBar = new System.Windows.Forms.StatusBar();
             this._notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this._notifyMenu = new System.Windows.Forms.ContextMenu();
@@ -181,28 +182,24 @@ namespace MCEControl {
             this._menuSeparator5 = new System.Windows.Forms.MenuItem();
             this._notifyMenuItemExit = new System.Windows.Forms.MenuItem();
             this._log = new System.Windows.Forms.TextBox();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
-            this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.SuspendLayout();
             // 
             // _mainMenu
             // 
             this._mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                this._menuItemFileMenu,
-                this._menuSettings,
-                this._menuItemHelpMenu
-            });
+            this._menuItemFileMenu,
+            this._menuSettings,
+            this._menuItemHelpMenu});
             // 
             // _menuItemFileMenu
             // 
             this._menuItemFileMenu.Index = 0;
             this._menuItemFileMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                this._menuItemSendAwake,
-                this._menuSeparator1,
-                this._menuItemEditCommands,
-                this._menuSeparator2,
-                this._menuItemExit
-            });
+            this._menuItemSendAwake,
+            this._menuSeparator1,
+            this._menuItemEditCommands,
+            this._menuSeparator2,
+            this._menuItemExit});
             this._menuItemFileMenu.Text = "&File";
             // 
             // _menuItemSendAwake
@@ -243,13 +240,12 @@ namespace MCEControl {
             // 
             this._menuItemHelpMenu.Index = 2;
             this._menuItemHelpMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                this._menuItemHelp,
-                this._menuItemSupport,
-                this.menuItem2,
-                this._menuItemCheckVersion,
-                this.menuItem1,
-                this._menuItemAbout
-            });
+            this._menuItemHelp,
+            this._menuItemSupport,
+            this.menuItem2,
+            this._menuItemCheckVersion,
+            this.menuItem1,
+            this._menuItemAbout});
             this._menuItemHelpMenu.Text = "&Help";
             // 
             // _menuItemHelp
@@ -265,11 +261,10 @@ namespace MCEControl {
             this._menuItemSupport.Text = "&Get Support...";
             this._menuItemSupport.Click += new System.EventHandler(this.MenuItemSupportClick);
             // 
-            // _menuItemAbout
+            // menuItem2
             // 
-            this._menuItemAbout.Index = 5;
-            this._menuItemAbout.Text = "&About MCE Controller";
-            this._menuItemAbout.Click += new System.EventHandler(this.MenuItemAboutClick);
+            this.menuItem2.Index = 2;
+            this.menuItem2.Text = "-";
             // 
             // _menuItemCheckVersion
             // 
@@ -277,11 +272,22 @@ namespace MCEControl {
             this._menuItemCheckVersion.Text = "&Check for a newer version";
             this._menuItemCheckVersion.Click += new System.EventHandler(this.menuItemCheckVersion_Click);
             // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 4;
+            this.menuItem1.Text = "-";
+            // 
+            // _menuItemAbout
+            // 
+            this._menuItemAbout.Index = 5;
+            this._menuItemAbout.Text = "&About MCE Controller";
+            this._menuItemAbout.Click += new System.EventHandler(this.MenuItemAboutClick);
+            // 
             // _statusBar
             // 
-            this._statusBar.Location = new System.Drawing.Point(0, 184);
+            this._statusBar.Location = new System.Drawing.Point(0, 115);
             this._statusBar.Name = "_statusBar";
-            this._statusBar.Size = new System.Drawing.Size(368, 20);
+            this._statusBar.Size = new System.Drawing.Size(368, 29);
             this._statusBar.TabIndex = 0;
             // 
             // _notifyIcon
@@ -294,12 +300,11 @@ namespace MCEControl {
             // _notifyMenu
             // 
             this._notifyMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                this._notifyMenuViewStatus,
-                this._menuSeparator4,
-                this._notifyMenuItemSettings,
-                this._menuSeparator5,
-                this._notifyMenuItemExit
-            });
+            this._notifyMenuViewStatus,
+            this._menuSeparator4,
+            this._notifyMenuItemSettings,
+            this._menuSeparator5,
+            this._notifyMenuItemExit});
             // 
             // _notifyMenuViewStatus
             // 
@@ -331,41 +336,28 @@ namespace MCEControl {
             // 
             // _log
             // 
-            this._log.Anchor =
-                ((System.Windows.Forms.AnchorStyles)
-                    ((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                       | System.Windows.Forms.AnchorStyles.Left)
-                      | System.Windows.Forms.AnchorStyles.Right)));
-            this._log.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular,
-                System.Drawing.GraphicsUnit.Point, ((byte) (0)));
+            this._log.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._log.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this._log.Location = new System.Drawing.Point(0, 0);
             this._log.Multiline = true;
             this._log.Name = "_log";
-            this._log.Size = new System.Drawing.Size(368, 187);
+            this._log.Size = new System.Drawing.Size(368, 119);
             this._log.TabIndex = 1;
             this._log.WordWrap = false;
             this._log.TextChanged += new System.EventHandler(this.LogTextChanged);
             this._log.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.LogKeyPress);
             // 
-            // menuItem1
-            // 
-            this.menuItem1.Index = 4;
-            this.menuItem1.Text = "-";
-            // 
-            // menuItem2
-            // 
-            this.menuItem2.Index = 2;
-            this.menuItem2.Text = "-";
-            // 
             // MainWindow
             // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.AutoScaleBaseSize = new System.Drawing.Size(8, 19);
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(368, 204);
+            this.ClientSize = new System.Drawing.Size(368, 144);
             this.Controls.Add(this._log);
             this.Controls.Add(this._statusBar);
             this.HelpButton = true;
-            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Menu = this._mainMenu;
             this.MinimizeBox = false;

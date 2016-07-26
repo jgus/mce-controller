@@ -69,3 +69,6 @@ Thumbs.db
 # Other stuff
 .cvsignore
 CVS/
+
+/packages/
+!packages/repositories.config
