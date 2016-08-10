@@ -25,14 +25,13 @@ using WindowsInput.Native;
 namespace MCEControl
 {
     // Base class for all Command types
-    public class Command
+    public abstract class Command
     {
         [XmlAttribute("Cmd")]
         public string Key;
 
-        public virtual void Execute(Reply reply)
-        {
-        }
+        public abstract void Execute(Reply reply);
+        public virtual IEnumerable<Command> AutoCommands() { yield break; }
     }
 
     // Note, do not change the namespace or your will break existing installations
@@ -138,6 +137,10 @@ namespace MCEControl
         private void AddCommand(Command command)
         {
             _hashTable[command.Key.ToUpper()] = command;
+            foreach (var autoCommand in command.AutoCommands())
+            {
+                AddCommand(autoCommand);
+            }
         }
 
         public static CommandTable Deserialize(bool DisableInternalCommands)

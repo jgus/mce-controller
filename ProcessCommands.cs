@@ -9,6 +9,7 @@
 //-------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
@@ -24,6 +25,8 @@ namespace MCEControl
         public string File;
         [XmlAttribute("Arguments")]
         public string Arguments;
+        [XmlAttribute("StopCmd")]
+        public string StopCommand;
 
         [XmlElement("StartProcess", typeof(StartProcessCommand))]
         [XmlElement("SendInput", typeof(SendInputCommand))]
@@ -31,15 +34,15 @@ namespace MCEControl
         [XmlElement(typeof(Command))]
         public Command NextCommand;
 
-        public StartProcessCommand()
-        {
-        }
+        [XmlIgnore]
+        private Executor executor;
 
         public override void Execute(Reply reply)
         {
+            Stop(reply);
             if (File != null)
             {
-                var executor = new Executor(File, Arguments);
+                executor = new Executor(File, Arguments);
                 executor.Run();
 
                 if (NextCommand != null)
@@ -48,6 +51,23 @@ namespace MCEControl
 
             if (NextCommand != null)
                 NextCommand.Execute(reply);
+        }
+
+        public void Stop(Reply reply)
+        {
+            if (executor != null)
+            {
+                executor.Stop();
+                executor = null;
+            }
+        }
+
+        public override IEnumerable<Command> AutoCommands()
+        {
+            if (!string.IsNullOrWhiteSpace(StopCommand))
+            {
+                yield return new StopProcessCommand(this);
+            }
         }
 
         private class Executor
@@ -84,6 +104,11 @@ namespace MCEControl
                 }).Start();
             }
 
+            public void Stop()
+            {
+                process.CloseMainWindow();
+            }
+
             public void WaitForInputIdle(TimeSpan timeSpan)
             {
                 process.WaitForInputIdle((int)timeSpan.TotalMilliseconds);
@@ -107,6 +132,22 @@ namespace MCEControl
                 if (e == null || e.Data == null) { return; }
                 Log($"ERR: {e.Data}");
             }
+        }
+    }
+
+    public class StopProcessCommand : Command
+    {
+        private StartProcessCommand startProcessCommand;
+
+        public StopProcessCommand(StartProcessCommand startProcessCommand)
+        {
+            Key = startProcessCommand.StopCommand;
+            this.startProcessCommand = startProcessCommand;
+        }
+
+        public override void Execute(Reply reply)
+        {
+            startProcessCommand.Stop(reply);
         }
     }
 }
