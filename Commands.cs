@@ -136,7 +136,7 @@ namespace MCEControl
                 }
                 else
                 {
-                    MainWindow.AddLogEntry("Cmd: Unknown Cmd: " + cmd);
+                    MainWindow.AddLogEntry($"Unknown command: \"{cmd}\"");
                 }
             }
         }
@@ -151,7 +151,9 @@ namespace MCEControl
 
         private void AddCommand(Command command)
         {
-            _hashTable[command.Key.ToUpper()] = command;
+            var key = command.Key.ToUpper();
+            //MainWindow.AddLogEntry($"Adding command \"{key}\": {command.GetType().Name}");
+            _hashTable[key] = command;
             foreach (var autoCommand in command.AutoCommands())
             {
                 AddCommand(autoCommand);
