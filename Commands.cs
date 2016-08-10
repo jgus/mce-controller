@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -105,6 +106,12 @@ namespace MCEControl
                     return;
                 }
 
+                if (cmd.StartsWith("stopall:"))
+                {
+                    StopAll(reply);
+                    return;
+                }
+
                 if (cmd.Length == 1)
                 {
                     // It's a single character, just send it
@@ -131,6 +138,14 @@ namespace MCEControl
                 {
                     MainWindow.AddLogEntry("Cmd: Unknown Cmd: " + cmd);
                 }
+            }
+        }
+
+        private void StopAll(Reply reply)
+        {
+            foreach (var stopCommand in _hashTable.Values.OfType<StopProcessCommand>())
+            {
+                stopCommand.Execute(reply);
             }
         }
 
