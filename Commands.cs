@@ -22,42 +22,53 @@ using System.Xml.Serialization;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace MCEControl {
+namespace MCEControl
+{
     // Base class for all Command types
-    public class Command {
-        [XmlAttribute("Cmd")] public string Key;
+    public class Command
+    {
+        [XmlAttribute("Cmd")]
+        public string Key;
 
-        public virtual void Execute(Reply reply) {
+        public virtual void Execute(Reply reply)
+        {
         }
     }
 
     // Note, do not change the namespace or your will break existing installations
     [XmlType(Namespace = "http://www.kindel.com/products/mcecontroller", TypeName = "MCEController")]
-    public class CommandTable {
-        [XmlIgnore] private readonly Dictionary<string, Command> _hashTable = new Dictionary<string, Command>();
+    public class CommandTable
+    {
+        [XmlIgnore]
+        private readonly Dictionary<string, Command> _hashTable = new Dictionary<string, Command>();
 
-        [XmlArray("Commands")] 
-        [XmlArrayItem("StartProcess", typeof (StartProcessCommand))] 
-        [XmlArrayItem("SendInput", typeof (SendInputCommand))] 
-        [XmlArrayItem("SendMessage", typeof (SendMessageCommand))] 
-        [XmlArrayItem("SetForegroundWindow", typeof (SetForegroundWindowCommand))] 
-        [XmlArrayItem("Shutdown", typeof (ShutdownCommand))] 
-        [XmlArrayItem(typeof (Command))] 
+        [XmlArray("Commands")]
+        [XmlArrayItem("StartProcess", typeof(StartProcessCommand))]
+        [XmlArrayItem("SendInput", typeof(SendInputCommand))]
+        [XmlArrayItem("SendMessage", typeof(SendMessageCommand))]
+        [XmlArrayItem("SetForegroundWindow", typeof(SetForegroundWindowCommand))]
+        [XmlArrayItem("Shutdown", typeof(ShutdownCommand))]
+        [XmlArrayItem(typeof(Command))]
         public Command[] List;
 
-        public int CommandCount {
+        public int CommandCount
+        {
             get { return _hashTable.Count; }
         }
 
-        public void Execute(Reply reply, string cmd) {
-            if (!MainWindow.MainWnd.Settings.DisableInternalCommands) {
-                if (cmd.StartsWith(McecCommand.CmdPrefix)) {
+        public void Execute(Reply reply, string cmd)
+        {
+            if (!MainWindow.MainWnd.Settings.DisableInternalCommands)
+            {
+                if (cmd.StartsWith(McecCommand.CmdPrefix))
+                {
                     var command = new McecCommand(cmd);
                     command.Execute(reply);
                     return;
                 }
 
-                if (cmd.StartsWith("chars:")) {
+                if (cmd.StartsWith("chars:"))
+                {
                     // "chars:<chars>
                     string chars = Regex.Unescape(cmd.Substring(6, cmd.Length - 6));
                     MainWindow.AddLogEntry(string.Format("Cmd: Sending {0} chars: {1}", chars.Length, chars));
@@ -66,32 +77,37 @@ namespace MCEControl {
                     return;
                 }
 
-                if (cmd.StartsWith("api:")) {
+                if (cmd.StartsWith("api:"))
+                {
                     // "api:API(params)
                     // TODO: Implement API stuff
                     return;
                 }
 
-                if (cmd.StartsWith("shiftdown:")) {
+                if (cmd.StartsWith("shiftdown:"))
+                {
                     // Modifyer key down
                     SendInputCommand.ShiftKey(cmd.Substring(10, cmd.Length - 10), true);
                     return;
                 }
 
-                if (cmd.StartsWith("shiftup:")) {
+                if (cmd.StartsWith("shiftup:"))
+                {
                     // Modifyer key up
                     SendInputCommand.ShiftKey(cmd.Substring(8, cmd.Length - 8), false);
                     return;
                 }
 
-                if (cmd.StartsWith(MouseCommand.CmdPrefix)) {
+                if (cmd.StartsWith(MouseCommand.CmdPrefix))
+                {
                     // mouse:<action>[,<parameter>,<parameter>]
                     var mouseCmd = new MouseCommand(cmd);
                     mouseCmd.Execute(reply);
                     return;
                 }
 
-                if (cmd.Length == 1) {
+                if (cmd.Length == 1)
+                {
                     // It's a single character, just send it
                     // must be upper case (VirtualKeyCode codes are for upper case)
                     cmd = cmd.ToUpper();
@@ -100,7 +116,7 @@ namespace MCEControl {
                     var sim = new InputSimulator();
 
                     MainWindow.AddLogEntry("Cmd: Sending keydown for: " + cmd);
-                    sim.Keyboard.KeyPress((VirtualKeyCode) c);
+                    sim.Keyboard.KeyPress((VirtualKeyCode)c);
                     return;
                 }
             }
@@ -119,28 +135,34 @@ namespace MCEControl {
             }
         }
 
-        private void AddCommand(Command command) {
+        private void AddCommand(Command command)
+        {
             _hashTable[command.Key.ToUpper()] = command;
         }
 
-        public static CommandTable Deserialize(bool DisableInternalCommands) {
+        public static CommandTable Deserialize(bool DisableInternalCommands)
+        {
             CommandTable cmds = null;
             CommandTable userCmds = null;
 
-            if (!DisableInternalCommands) {
+            if (!DisableInternalCommands)
+            {
                 // Load the built-in commands from an assembly resource
-                try {
-                    var serializer = new XmlSerializer(typeof (CommandTable));
+                try
+                {
+                    var serializer = new XmlSerializer(typeof(CommandTable));
                     XmlReader reader =
                         new XmlTextReader(
                             Assembly.GetExecutingAssembly()
                                 .GetManifestResourceStream("MCEControl.Resources.MCEControl.commands"));
-                    cmds = (CommandTable) serializer.Deserialize(reader);
-                    foreach (var cmd in cmds.List) {
+                    cmds = (CommandTable)serializer.Deserialize(reader);
+                    foreach (var cmd in cmds.List)
+                    {
                         cmds.AddCommand(cmd);
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     MessageBox.Show(string.Format("No commands loaded. Error parsing built-in commands. {0}",
                         ex.Message));
                     MainWindow.AddLogEntry(
@@ -162,40 +184,47 @@ namespace MCEControl {
                         cmds._hashTable.Add(s, cmd);
                 }
             }
-            else {
+            else
+            {
                 cmds = new CommandTable();
             }
             // Load any over-rides from a text file
             FileStream fs = null;
-            try {
-                var serializer = new XmlSerializer(typeof (CommandTable));
+            try
+            {
+                var serializer = new XmlSerializer(typeof(CommandTable));
                 // A FileStream is needed to read the XML document.
                 fs = new FileStream("MCEControl.commands", FileMode.Open, FileAccess.Read);
                 XmlReader reader = new XmlTextReader(fs);
                 userCmds = (CommandTable)serializer.Deserialize(reader);
-                foreach (var cmd in userCmds.List) {
+                foreach (var cmd in userCmds.List)
+                {
                     cmds.AddCommand(cmd);
                 }
                 MainWindow.AddLogEntry(string.Format("MCEC: User defined commands loaded."));
             }
-            catch (FileNotFoundException ex) {
+            catch (FileNotFoundException ex)
+            {
                 MainWindow.AddLogEntry("MCEC: No user defined commands loaded; MCEControl.commands was not found.");
                 Util.DumpException(ex);
             }
-            catch (InvalidOperationException ex) {
+            catch (InvalidOperationException ex)
+            {
                 MainWindow.AddLogEntry(
                     string.Format("MCEC: No commands loaded. Error parsing MCEControl.commands file. {0} {1}", ex.Message,
                                   ex.InnerException.Message));
                 Util.DumpException(ex);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show(string.Format("No commands loaded. Error parsing MCEControl.commands file. {0}",
                                               ex.Message));
                 MainWindow.AddLogEntry(string.Format("MCEC: No commands loaded. Error parsing MCEControl.commands file. {0}",
                                                      ex.Message));
                 Util.DumpException(ex);
             }
-            finally {
+            finally
+            {
                 if (fs != null)
                     fs.Close();
             }

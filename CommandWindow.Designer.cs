@@ -78,8 +78,8 @@
             // listCmds
             // 
             this.listCmds.Activation = System.Windows.Forms.ItemActivation.TwoClick;
-            this.listCmds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.listCmds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listCmds.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnCmd,

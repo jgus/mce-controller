@@ -13,16 +13,19 @@ using WindowsInput.Native;
 
 namespace MCEControl
 {
-    public partial class CommandWindow : Form {
+    public partial class CommandWindow : Form
+    {
         public CommandWindow()
         {
             InitializeComponent();
         }
 
 
-        private void CommandWindow_Load(object sender, EventArgs e) {
+        private void CommandWindow_Load(object sender, EventArgs e)
+        {
             Icon = MainWindow.MainWnd.Icon;
-            foreach (Command cmd in MainWindow.MainWnd.CmdTable.List) {
+            foreach (Command cmd in MainWindow.MainWnd.CmdTable.List)
+            {
                 var item = new ListViewItem(cmd.Key);
                 Match match = Regex.Match(cmd.GetType().ToString(), @"MCEControl\.([A-za-z]+)Command");
                 item.SubItems.Add(match.Groups[1].Value);
@@ -30,12 +33,13 @@ namespace MCEControl
             }
 
             // Now add VK_ commands
-            foreach (VirtualKeyCode vk in Enum.GetValues(typeof(VirtualKeyCode))) {
+            foreach (VirtualKeyCode vk in Enum.GetValues(typeof(VirtualKeyCode)))
+            {
                 string s;
                 if (vk > VirtualKeyCode.HELP && vk < VirtualKeyCode.LWIN)
                     s = vk.ToString();  // already have VK_
                 else
-                    s = "VK_" + vk.ToString(); 
+                    s = "VK_" + vk.ToString();
                 var item = new ListViewItem(s);
                 item.SubItems.Add("SendInputCommand (pre-defined)");
                 listCmds.Items.Add(item);
@@ -44,7 +48,8 @@ namespace MCEControl
 
         private void CommandWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing) {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
                 this.Hide();
                 MainWindow.MainWnd.Settings.ShowCommandWindow = false;
                 e.Cancel = true;
@@ -56,7 +61,8 @@ namespace MCEControl
 
         }
 
-        private void buttonSendChars_Click(object sender, EventArgs e) {
+        private void buttonSendChars_Click(object sender, EventArgs e)
+        {
             textBoxSendCommand.Text = string.Format("chars:{0}", textBoxChars.Text);
             Send();
         }

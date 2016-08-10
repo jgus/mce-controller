@@ -13,28 +13,32 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.IO.Ports;      
+using System.IO.Ports;
 
-namespace MCEControl {
+namespace MCEControl
+{
     /// <summary>
     /// Implements the serial port server 
     /// </summary>
-    sealed public class SerialServer : ServiceBase, IDisposable {
+    sealed public class SerialServer : ServiceBase, IDisposable
+    {
 
         #region IDisposable Members
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         #endregion
 
-        private Thread _readThread ;
+        private Thread _readThread;
         private SerialPort _serialPort;
 
         private void Dispose(bool disposing)
         {
-            if (disposing) {
+            if (disposing)
+            {
                 if (_serialPort != null)
                     _serialPort.Close();
                 _serialPort = null;
@@ -47,7 +51,8 @@ namespace MCEControl {
         //-----------------------------------------------------------
         // Control functions (Start, Stop, etc...)
         //-----------------------------------------------------------
-        public void Start(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, Handshake handshake) {
+        public void Start(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, Handshake handshake)
+        {
 
             if (_serialPort != null || _readThread != null)
                 Stop();
@@ -55,17 +60,19 @@ namespace MCEControl {
             Debug.Assert(_serialPort == null);
             Debug.Assert(_readThread == null);
 
-            _serialPort = new SerialPort {
-                PortName = portName, 
-                BaudRate = baudRate, 
-                Parity = parity, 
-                DataBits = dataBits, 
+            _serialPort = new SerialPort
+            {
+                PortName = portName,
+                BaudRate = baudRate,
+                Parity = parity,
+                DataBits = dataBits,
                 StopBits = stopBits,
-                Handshake = handshake, 
+                Handshake = handshake,
                 ReadTimeout = 500
             };
 
-            try {
+            try
+            {
                 // Set the read/write timeouts
                 Debug.WriteLine("Opening serial port: " + GetSettingsDisplayString());
                 SetStatus(ServiceStatus.Started, GetSettingsDisplayString());
@@ -75,21 +82,25 @@ namespace MCEControl {
                 _readThread.Start();
                 SetStatus(ServiceStatus.Waiting);
             }
-            catch (IOException ioe) {
+            catch (IOException ioe)
+            {
                 Error(ioe.Message);
                 Stop();
             }
-            catch (UnauthorizedAccessException uae) {
+            catch (UnauthorizedAccessException uae)
+            {
                 Error(string.Format("Port in use? {0} ({1})", uae.Message, GetSettingsDisplayString()));
                 Stop();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Error(e.Message);
-                Stop();              
+                Stop();
             }
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             Debug.WriteLine("Serial Server Stop");
             Dispose(true);
             SetStatus(ServiceStatus.Stopped);
@@ -159,7 +170,8 @@ namespace MCEControl {
             {
                 try
                 {
-                    if (_serialPort == null) {
+                    if (_serialPort == null)
+                    {
                         Debug.WriteLine("_serialPort is null in Read()");
                         break;
                     }
@@ -177,13 +189,16 @@ namespace MCEControl {
                     else sb.Append(c);
 
                 }
-                catch (TimeoutException) {
+                catch (TimeoutException)
+                {
                     Debug.WriteLine("SerialServer: TimeoutException");
                 }
-                catch (IOException ioe) {
-                    Debug.WriteLine("SerialServer: IOException: "+ ioe.Message);
+                catch (IOException ioe)
+                {
+                    Debug.WriteLine("SerialServer: IOException: " + ioe.Message);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     Debug.WriteLine("SerialServer: Exception: " + e.Message);
                 }
             }
@@ -191,13 +206,17 @@ namespace MCEControl {
         }
 
         #region Nested type: SerialReplyContext
-        public class SerialReplyContext : Reply {
+        public class SerialReplyContext : Reply
+        {
             private SerialPort _rs232;
-            public SerialReplyContext(SerialPort rs232) {
+            public SerialReplyContext(SerialPort rs232)
+            {
                 _rs232 = rs232;
             }
-            public override void Write(string text) {
-                if (_rs232 != null && _rs232.IsOpen) {
+            public override void Write(string text)
+            {
+                if (_rs232 != null && _rs232.IsOpen)
+                {
                     _rs232.Write(text);
                 }
             }

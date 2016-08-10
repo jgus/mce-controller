@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("MCE Controller")]
 [assembly: AssemblyCopyright("Copyright © 2014 Kindel Systems, LLC")]
 [assembly: AssemblyTrademark("MCE Controller")]
-[assembly: AssemblyCulture("")]		
+[assembly: AssemblyCulture("")]
 
 //
 // Version information for an assembly consists of the following four values:

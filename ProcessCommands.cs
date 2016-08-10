@@ -13,25 +13,32 @@ using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
 
-namespace MCEControl {
+namespace MCEControl
+{
     /// <summary>
     /// Summary description for StartProcessCommands.
     /// </summary>
-    public class StartProcessCommand : Command {
-        [XmlAttribute("File")] public string File;
-        [XmlAttribute("Arguments")] public string Arguments;
+    public class StartProcessCommand : Command
+    {
+        [XmlAttribute("File")]
+        public string File;
+        [XmlAttribute("Arguments")]
+        public string Arguments;
 
-        [XmlElement("StartProcess", typeof (StartProcessCommand))] 
-        [XmlElement("SendInput", typeof (SendInputCommand))] 
-        [XmlElement("SendMessage", typeof (SendMessageCommand))] 
-        [XmlElement(typeof (Command))] 
+        [XmlElement("StartProcess", typeof(StartProcessCommand))]
+        [XmlElement("SendInput", typeof(SendInputCommand))]
+        [XmlElement("SendMessage", typeof(SendMessageCommand))]
+        [XmlElement(typeof(Command))]
         public Command NextCommand;
 
-        public StartProcessCommand() {
+        public StartProcessCommand()
+        {
         }
 
-        public override void Execute(Reply reply) {
-            if (File != null) {
+        public override void Execute(Reply reply)
+        {
+            if (File != null)
+            {
                 var executor = new Executor(File, Arguments);
                 executor.Run();
 

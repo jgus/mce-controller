@@ -17,11 +17,13 @@ using System.Text;
 using System.Threading;
 using log4net;
 
-namespace MCEControl {
+namespace MCEControl
+{
     /// <summary>
     /// Implements the TCP/IP server using asynchronous sockets
     /// </summary>
-    sealed public class SocketServer : ServiceBase, IDisposable {
+    sealed public class SocketServer : ServiceBase, IDisposable
+    {
         // An ConcurrentDictionary is used to keep track of worker sockets that are designed
         // to communicate with each connected client. For thread safety.
         private readonly ConcurrentDictionary<int, Socket> _socketList = new ConcurrentDictionary<int, Socket>();
@@ -36,7 +38,8 @@ namespace MCEControl {
         private ILog _log4;
 
         #region IDisposable Members
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -45,7 +48,8 @@ namespace MCEControl {
         // Disposable members
         private Socket _mainSocket;
 
-        private void Dispose(bool disposing) {
+        private void Dispose(bool disposing)
+        {
             _log4.Debug("SocketServer disposing...");
             if (!disposing) return;
             foreach (var i in _socketList.Keys)
@@ -68,9 +72,11 @@ namespace MCEControl {
         //-----------------------------------------------------------
         // Control functions (Start, Stop, etc...)
         //-----------------------------------------------------------
-        public void Start(int port) {
+        public void Start(int port)
+        {
             _log4 = log4net.LogManager.GetLogger("MCEControl");
-            try {
+            try
+            {
                 _log4.Debug("SocketServer Start");
                 // Create the listening socket...
                 _mainSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -86,13 +92,15 @@ namespace MCEControl {
                 SetStatus(ServiceStatus.Waiting);
                 _mainSocket.BeginAccept(OnClientConnect, null);
             }
-            catch (SocketException se) {
+            catch (SocketException se)
+            {
                 SendNotification(ServiceNotification.Error, CurrentStatus, null, string.Format("Start: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 SetStatus(ServiceStatus.Stopped);
             }
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             _log4.Debug("SocketServer Stop");
             Dispose(true);
             SetStatus(ServiceStatus.Stopped);
@@ -101,12 +109,14 @@ namespace MCEControl {
         //-----------------------------------------------------------
         // Async handlers
         //-----------------------------------------------------------
-        private void OnClientConnect(IAsyncResult async) {
+        private void OnClientConnect(IAsyncResult async)
+        {
             _log4.Debug("SocketServer OnClientConnect");
 
             if (_mainSocket == null) return;
             ServerReplyContext serverReplyContext = null;
-            try {
+            try
+            {
                 // Here we complete/end the BeginAccept() asynchronous call
                 // by calling EndAccept() - which returns the reference to
                 // a new Socket object
@@ -135,14 +145,15 @@ namespace MCEControl {
                 // just connected client
                 BeginReceive(serverReplyContext);
             }
-            catch (SocketException se) {
+            catch (SocketException se)
+            {
                 SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, string.Format("OnClientConnect: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 // See http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668(v=vs.85).aspx
                 //if (se.SocketErrorCode == SocketError.ConnectionReset) // WSAECONNRESET (10054)
                 {
                     // Forcibly closed
                     CloseSocket(serverReplyContext);
-                } 
+                }
             }
             catch (Exception e)
             {
@@ -157,30 +168,35 @@ namespace MCEControl {
         }
 
         // Start waiting for data from the client
-        private void BeginReceive(ServerReplyContext serverReplyContext) {
+        private void BeginReceive(ServerReplyContext serverReplyContext)
+        {
             _log4.Debug("SocketServer BeginReceive");
-            try {
+            try
+            {
                 serverReplyContext.Socket.BeginReceive(serverReplyContext.DataBuffer, 0,
                                     serverReplyContext.DataBuffer.Length,
                                     SocketFlags.None,
                                     OnDataReceived,
                                     serverReplyContext);
             }
-            catch (SocketException se) {
+            catch (SocketException se)
+            {
                 SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, string.Format("BeginReceive: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 CloseSocket(serverReplyContext);
             }
         }
 
-        private void CloseSocket(ServerReplyContext serverReplyContext) {
-            _log4.Debug("SocketServer CloseSocket"); 
+        private void CloseSocket(ServerReplyContext serverReplyContext)
+        {
+            _log4.Debug("SocketServer CloseSocket");
             if (serverReplyContext == null) return;
 
             // Remove the reference to the worker socket of the closed client
             // so that this object will get garbage collected
             Socket socket;
             _socketList.TryRemove(serverReplyContext.ClientNumber, out socket);
-            if (socket != null) {
+            if (socket != null)
+            {
                 _log4.Debug("Closing Socket #" + serverReplyContext.ClientNumber);
                 Interlocked.Decrement(ref _clientCount);
                 SendNotification(ServiceNotification.ClientDisconnected, CurrentStatus, serverReplyContext);
@@ -205,16 +221,19 @@ namespace MCEControl {
 
         // This the call back function which will be invoked when the socket
         // detects any client writing of data on the stream
-        private void OnDataReceived(IAsyncResult async) {
+        private void OnDataReceived(IAsyncResult async)
+        {
             var clientContext = (ServerReplyContext)async.AsyncState;
             if (_mainSocket == null || !clientContext.Socket.Connected) return;
-            try {
+            try
+            {
                 // Complete the BeginReceive() asynchronous call by EndReceive() method
                 // which will return the number of characters written to the stream 
                 // by the client
                 SocketError err;
                 var iRx = clientContext.Socket.EndReceive(async, out err);
-                if (err != SocketError.Success || iRx == 0) {
+                if (err != SocketError.Success || iRx == 0)
+                {
                     CloseSocket(clientContext);
                     return;
                 }
@@ -222,14 +241,16 @@ namespace MCEControl {
                 // _currentCommand contains the current command we are parsing out and 
                 // _currentIndex is the index into it
                 //int n = 0;
-                for (int i = 0; i < iRx; i++) {
+                for (int i = 0; i < iRx; i++)
+                {
                     byte b = clientContext.DataBuffer[i];
                     switch (b)
                     {
                         case (byte)TelnetVerbs.IAC:
                             // interpret as a command
                             i++;
-                            if (i < iRx) {
+                            if (i < iRx)
+                            {
                                 byte verb = clientContext.DataBuffer[i];
                                 switch (verb)
                                 {
@@ -244,9 +265,10 @@ namespace MCEControl {
                                         // reply to all commands with "WONT", unless it is SGA (suppres go ahead)
                                         i++;
                                         byte inputoption = clientContext.DataBuffer[i];
-                                        if (i < iRx) {
-                                            clientContext.Socket.Send(new[]{(byte)TelnetVerbs.IAC});
-                                            if (inputoption == (int) TelnetOptions.SGA)
+                                        if (i < iRx)
+                                        {
+                                            clientContext.Socket.Send(new[] { (byte)TelnetVerbs.IAC });
+                                            if (inputoption == (int)TelnetOptions.SGA)
                                                 clientContext.Socket.Send(new[]{verb == (int) TelnetVerbs.DO
                                                                         ? (byte) TelnetVerbs.WILL
                                                                         : (byte) TelnetVerbs.DO});
@@ -254,7 +276,7 @@ namespace MCEControl {
                                                 clientContext.Socket.Send(new[]{verb == (int) TelnetVerbs.DO
                                                                         ? (byte) TelnetVerbs.WONT
                                                                         : (byte) TelnetVerbs.DONT});
-                                            clientContext.Socket.Send(new[]{inputoption});
+                                            clientContext.Socket.Send(new[] { inputoption });
                                         }
                                         break;
                                 }
@@ -282,34 +304,41 @@ namespace MCEControl {
                 // Continue the waiting for data on the Socket
                 BeginReceive(clientContext);
             }
-            catch (SocketException se) {
+            catch (SocketException se)
+            {
                 if (se.SocketErrorCode == SocketError.ConnectionReset) // Error code for Connection reset by peer 
                 {
                     SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, string.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                     CloseSocket(clientContext);
                 }
-                else {
+                else
+                {
                     SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, string.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 }
             }
         }
 
-        public void SendAwakeCommand(string cmd, string host, int port) {
+        public void SendAwakeCommand(string cmd, string host, int port)
+        {
             _log4.Debug("SocketServer SendAwakeCommand");
-            if (string.IsNullOrEmpty(host)) {
+            if (string.IsNullOrEmpty(host))
+            {
                 SendNotification(ServiceNotification.Wakeup, CurrentStatus, null, "No wakeup host specified.");
                 return;
             }
-            if (port == 0) {
+            if (port == 0)
+            {
                 SendNotification(ServiceNotification.Wakeup, CurrentStatus, null, "Invalid port.");
                 return;
             }
-            try {
+            try
+            {
                 // Try to resolve the remote host name or address
                 var resolvedHost = Dns.GetHostEntry(host);
                 var clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                try {
+                try
+                {
                     // Create the endpoint that describes the destination
                     var destination = new IPEndPoint(resolvedHost.AddressList[0], port);
 
@@ -317,7 +346,8 @@ namespace MCEControl {
                                      string.Format("Attempting connection to: {0}", destination));
                     clientSocket.Connect(destination);
                 }
-                catch (SocketException err) {
+                catch (SocketException err)
+                {
                     // Connect failed so close the socket and try the next address
                     clientSocket.Close();
                     clientSocket = null;
@@ -325,8 +355,10 @@ namespace MCEControl {
                                      "Error connecting.\r\n" + string.Format("   Error: {0}", err.Message));
                 }
                 // Make sure we have a valid socket before trying to use it
-                if ((clientSocket != null)) {
-                    try {
+                if ((clientSocket != null))
+                {
+                    try
+                    {
                         clientSocket.Send(Encoding.ASCII.GetBytes(cmd + "\r\n"));
 
                         SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
@@ -335,18 +367,21 @@ namespace MCEControl {
                         // For TCP, shutdown sending on our side since the client won't send any more data
                         clientSocket.Shutdown(SocketShutdown.Send);
                     }
-                    catch (SocketException err) {
+                    catch (SocketException err)
+                    {
                         SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
                                          "Error occured while sending or receiving data.\r\n" +
                                          string.Format("   Error: {0}", err.Message));
                     }
                 }
-                else {
+                else
+                {
                     SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
                                      "Unable to establish connection to server!");
                 }
             }
-            catch (SocketException err) {
+            catch (SocketException err)
+            {
                 SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
                                  string.Format("Socket error occured: {0}", err.Message));
             }
@@ -354,7 +389,8 @@ namespace MCEControl {
 
         #region Nested type: ServerReplyContext
 
-        public class ServerReplyContext : Reply {
+        public class ServerReplyContext : Reply
+        {
             public StringBuilder CmdBuilder { get; set; }
             public Socket Socket { get; set; }
             public int ClientNumber { get; set; }
@@ -364,31 +400,35 @@ namespace MCEControl {
             private readonly SocketServer _server;
 
             // Constructor which takes a Socket and a client number
-            public ServerReplyContext(SocketServer server, Socket socket, int clientNumber) {
+            public ServerReplyContext(SocketServer server, Socket socket, int clientNumber)
+            {
                 CmdBuilder = new StringBuilder();
                 _server = server;
                 Socket = socket;
                 ClientNumber = clientNumber;
             }
 
-            protected string Command {
+            protected string Command
+            {
                 get { return CmdBuilder.ToString(); }
-                set { } 
+                set { }
             }
 
             public override void Write(string text)
             {
-                if (_server == null 
-                    || _server.CurrentStatus != ServiceStatus.Connected 
-                    || Socket == null 
+                if (_server == null
+                    || _server.CurrentStatus != ServiceStatus.Connected
+                    || Socket == null
                     || !Socket.Connected)
                     return;
-                
-                if (Socket.Send(Encoding.UTF8.GetBytes(text)) > 0) {
+
+                if (Socket.Send(Encoding.UTF8.GetBytes(text)) > 0)
+                {
                     _server.SendNotification(ServiceNotification.Write, _server.CurrentStatus, this, text.Trim());
                 }
-                else {
-                    _server.SendNotification(ServiceNotification.WriteFailed, _server.CurrentStatus, this, text);                    
+                else
+                {
+                    _server.SendNotification(ServiceNotification.WriteFailed, _server.CurrentStatus, this, text);
                 }
             }
         }

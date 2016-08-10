@@ -11,25 +11,33 @@
 using System;
 using System.Xml.Serialization;
 
-namespace MCEControl {
+namespace MCEControl
+{
     /// <summary>
     /// Summary description for ShutdownCommand.
     /// </summary>
-    public class ShutdownCommand : Command {
-        [XmlAttribute("Type")] public string Type;
+    public class ShutdownCommand : Command
+    {
+        [XmlAttribute("Type")]
+        public string Type;
 
-        public ShutdownCommand() {
+        public ShutdownCommand()
+        {
             // Serialzable, must have constructor
         }
 
-        public ShutdownCommand(string type) {
+        public ShutdownCommand(string type)
+        {
             Type = type;
         }
 
-        public override void Execute(Reply reply) {
+        public override void Execute(Reply reply)
+        {
             MainWindow.AddLogEntry("Cmd: ShutdownCommand: " + Type);
-            using (var sc = new SystemControl()) {
-                switch (Type.ToLower()) {
+            using (var sc = new SystemControl())
+            {
+                switch (Type.ToLower())
+                {
                     case "shutdown":
                         sc.Shutdown("MCE Controller Forced Shutdown", 30, true, false);
                         break;

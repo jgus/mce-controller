@@ -39,12 +39,14 @@ namespace MCEControl
     {
         //public abstract String Command { get; set; }
         public abstract void Write(string text);
-        public void WriteLine(string textLine) {
+        public void WriteLine(string textLine)
+        {
             Write(textLine + Environment.NewLine);
         }
     }
 
-    public abstract class ServiceBase {
+    public abstract class ServiceBase
+    {
         public delegate
             void NotificationCallback(ServiceNotification notify, ServiceStatus status, Reply reply, string msg = "");
         public event NotificationCallback Notifications;

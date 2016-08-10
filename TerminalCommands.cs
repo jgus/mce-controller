@@ -19,19 +19,23 @@ namespace MCEControl
     /// <summary>
     /// Commands that control MCE Controller, or get information about it
     /// </summary>
-    class McecCommand : Command {
+    class McecCommand : Command
+    {
         public static readonly string CmdPrefix = "mcec:";
 
-        public McecCommand(string cmd) {
+        public McecCommand(string cmd)
+        {
             Key = cmd.Substring(CmdPrefix.Length, cmd.Length - CmdPrefix.Length);
         }
 
-        public override void Execute(Reply reply) {
+        public override void Execute(Reply reply)
+        {
             if (reply == null)
                 return;
 
             var replyBuilder = new StringBuilder();
-            switch (Key) {
+            switch (Key)
+            {
                 // MCE Controller version
                 case "ver":
                     replyBuilder.Append(Application.ProductVersion);
@@ -45,18 +49,20 @@ namespace MCEControl
 
                 // Return a list of supported commands (really just for testing)
                 case "cmds":
-                    foreach (Command cmd in MainWindow.MainWnd.CmdTable.List) {
+                    foreach (Command cmd in MainWindow.MainWnd.CmdTable.List)
+                    {
                         Match match = Regex.Match(cmd.GetType().ToString(), @"MCEControl\.([A-za-z]+)Command");
                         replyBuilder.AppendFormat("{0}={1}{2}", cmd.Key, match.Groups[1].Value, Environment.NewLine);
                     }
 
                     // Now add VK_ commands
-                    foreach (VirtualKeyCode vk in Enum.GetValues(typeof(VirtualKeyCode))) {
+                    foreach (VirtualKeyCode vk in Enum.GetValues(typeof(VirtualKeyCode)))
+                    {
                         string s;
                         if (vk > VirtualKeyCode.HELP && vk < VirtualKeyCode.LWIN)
                             s = vk.ToString();  // already have VK_
                         else
-                            s = "VK_" + vk.ToString(); 
+                            s = "VK_" + vk.ToString();
                         replyBuilder.AppendFormat("{0}={1}{2}", s, "SendInput", Environment.NewLine);
                     }
                     break;
@@ -83,7 +89,8 @@ namespace MCEControl
             Reply(reply, replyBuilder.ToString());
         }
 
-        private void Reply(Reply reply, string msg) {
+        private void Reply(Reply reply, string msg)
+        {
             MainWindow.AddLogEntry("Cmd: Sending reply: " + msg);
             reply.WriteLine(msg);
         }

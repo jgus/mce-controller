@@ -17,7 +17,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace MCEControl {
+namespace MCEControl
+{
     /// <summary>
     /// SocketClient implements our TCP/IP client.
     /// 
@@ -25,13 +26,15 @@ namespace MCEControl {
     /// and must be threadsafe.
     /// 
     /// </summary>
-    sealed public class SocketClient : ServiceBase, IDisposable {
+    sealed public class SocketClient : ServiceBase, IDisposable
+    {
 
         private readonly string _host = "";
         private readonly int _port;
         private readonly int _clientDelayTime;
 
-        public SocketClient(AppSettings settings) {
+        public SocketClient(AppSettings settings)
+        {
             _port = settings.ClientPort;
             _host = settings.ClientHost;
             _clientDelayTime = settings.ClientDelayTime;
@@ -40,40 +43,48 @@ namespace MCEControl {
         // Finalize 
 
         #region IDisposable Members
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         #endregion
 
-        ~SocketClient() {
+        ~SocketClient()
+        {
             Dispose();
         }
 
         private TcpClient _tcpClient;
         private BackgroundWorker _bw;
 
-        private void Dispose(bool disposing)  {
-            if (disposing) {
-                if (_bw != null) {
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_bw != null)
+                {
                     _bw.CancelAsync();
                     _bw.Dispose();
                     _bw = null;
                 }
-                if (_tcpClient != null) {
+                if (_tcpClient != null)
+                {
                     _tcpClient.Close();
-                    _tcpClient= null;
+                    _tcpClient = null;
                 }
             }
         }
 
-        public void Start(bool delay = false) {
+        public void Start(bool delay = false)
+        {
             var currentCmd = new StringBuilder();
             _tcpClient = new TcpClient();
             _bw = new BackgroundWorker();
             _bw.WorkerReportsProgress = false;
             _bw.WorkerSupportsCancellation = true;
-            _bw.DoWork += (sender, args) => {
+            _bw.DoWork += (sender, args) =>
+            {
                 if (delay && _clientDelayTime > 0)
                 {
                     SetStatus(ServiceStatus.Sleeping);
@@ -86,48 +97,59 @@ namespace MCEControl {
             _bw.RunWorkerAsync();
         }
 
-        public void Stop() {
+        public void Stop()
+        {
             Dispose(true);
             if (CurrentStatus != ServiceStatus.Stopped)
                 SetStatus(ServiceStatus.Stopped);
         }
 
         // Send text to remote connection
-        public void Send(string newText) {
+        public void Send(string newText)
+        {
             if (!_tcpClient.Connected || _bw.CancellationPending) return;
-            try {
+            try
+            {
                 byte[] buf = System.Text.ASCIIEncoding.ASCII.GetBytes(newText.Replace("\0xFF", "\0xFF\0xFF"));
                 _tcpClient.GetStream().Write(buf, 0, buf.Length);
             }
-            catch (IOException ioe) {
+            catch (IOException ioe)
+            {
                 Error(ioe.Message);
             }
         }
 
-        private void Connect() {
+        private void Connect()
+        {
             SetStatus(ServiceStatus.Started, string.Format("{0}:{1}", _host, _port));
 
             IPEndPoint endPoint;
-            try {
+            try
+            {
                 endPoint = new IPEndPoint(Dns.GetHostEntry(_host).AddressList[0], _port);
-                _tcpClient.BeginConnect(endPoint.Address, _port, ar => {
+                _tcpClient.BeginConnect(endPoint.Address, _port, ar =>
+                {
                     if (_tcpClient == null)
                         return;
-                    try {
+                    try
+                    {
                         _tcpClient.EndConnect(ar);
                         SetStatus(ServiceStatus.Connected);
                         StringBuilder sb = new StringBuilder();
-                        while (_bw != null && 
-                            !_bw.CancellationPending && 
-                            CurrentStatus == ServiceStatus.Connected && 
+                        while (_bw != null &&
+                            !_bw.CancellationPending &&
+                            CurrentStatus == ServiceStatus.Connected &&
                             _tcpClient != null &&
-                            _tcpClient.Connected) {
+                            _tcpClient.Connected)
+                        {
                             int input = _tcpClient.GetStream().ReadByte();
-                            switch (input) {
-                                case (byte) '\r':
-                                case (byte) '\n':
-                                case (byte) '\0':
-                                    if (sb.Length > 0) {
+                            switch (input)
+                            {
+                                case (byte)'\r':
+                                case (byte)'\n':
+                                case (byte)'\0':
+                                    if (sb.Length > 0)
+                                    {
                                         SendNotification(ServiceNotification.ReceivedData, ServiceStatus.Connected, new ClientReplyContext(_tcpClient), sb.ToString());
                                         sb.Clear();
                                         System.Threading.Thread.Sleep(100);
@@ -139,13 +161,15 @@ namespace MCEControl {
                                     return;
 
                                 default:
-                                    sb.Append((char) input);
+                                    sb.Append((char)input);
                                     break;
                             }
                         }
                     }
-                    catch (SocketException e) {
-                        switch (e.ErrorCode) {
+                    catch (SocketException e)
+                    {
+                        switch (e.ErrorCode)
+                        {
                             case 10061:
                                 Error("Connection refused.");
                                 break;
@@ -160,11 +184,14 @@ namespace MCEControl {
                                 break;
                         }
                     }
-                    catch (IOException e) {
+                    catch (IOException e)
+                    {
                         var sockExcept = e.InnerException as SocketException;
 
-                        if (sockExcept != null) {
-                            switch (sockExcept.ErrorCode) {
+                        if (sockExcept != null)
+                        {
+                            switch (sockExcept.ErrorCode)
+                            {
                                 case 10054:
                                     Error("Remote connection has closed.");
                                     break;
@@ -183,7 +210,8 @@ namespace MCEControl {
                                     break;
                             }
                         }
-                        else {
+                        else
+                        {
                             Error(string.Format("IOException. {0}", e.Message));
                         }
                     }
@@ -201,14 +229,17 @@ namespace MCEControl {
         }
         #region Nested type: ClientReplyContext
 
-        public class ClientReplyContext : Reply {
+        public class ClientReplyContext : Reply
+        {
             private readonly TcpClient _tcpClient;
             // Constructor which takes a Socket and a client number
-            public ClientReplyContext(TcpClient tcpClient) {
+            public ClientReplyContext(TcpClient tcpClient)
+            {
                 _tcpClient = tcpClient;
             }
 
-            public override void Write(string text) {
+            public override void Write(string text)
+            {
                 if (!_tcpClient.Connected) return;
 
                 byte[] buf = System.Text.Encoding.ASCII.GetBytes(text.Replace("\0xFF", "\0xFF\0xFF"));
