@@ -402,7 +402,7 @@ namespace MCEControl {
                 Opacity = 100;
             }
             else {
-                AddLogEntry("MCEC: " + CmdTable.NumCommands + " commands available.");
+                AddLogEntry("MCEC: " + CmdTable.CommandCount + " commands available.");
                 Opacity = (double) Settings.Opacity/100;
 
                 if (Settings.HideOnStartup) {

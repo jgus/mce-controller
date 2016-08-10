@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -33,7 +34,7 @@ namespace MCEControl {
     // Note, do not change the namespace or your will break existing installations
     [XmlType(Namespace = "http://www.kindel.com/products/mcecontroller", TypeName = "MCEController")]
     public class CommandTable {
-        [XmlIgnore] private readonly Hashtable _hashTable = new Hashtable();
+        [XmlIgnore] private readonly Dictionary<string, Command> _hashTable = new Dictionary<string, Command>();
 
         [XmlArray("Commands")] 
         [XmlArrayItem("StartProcess", typeof (StartProcessCommand))] 
@@ -44,13 +45,7 @@ namespace MCEControl {
         [XmlArrayItem(typeof (Command))] 
         public Command[] List;
 
-        public CommandTable() {
-            if (_hashTable == null) 
-                _hashTable = new Hashtable();
-
-        }
-
-        public int NumCommands {
+        public int CommandCount {
             get { return _hashTable.Count; }
         }
 
@@ -111,19 +106,21 @@ namespace MCEControl {
             }
 
             // Command is in MCEControl.commands
-            if (_hashTable.ContainsKey(cmd.ToUpper())) {
-                Command command = FindKey(cmd.ToUpper());
-                command.Execute(reply);
-            }
-            else {
-                MainWindow.AddLogEntry("Cmd: Unknown Cmd: " + cmd);
+            {
+                Command command;
+                if (_hashTable.TryGetValue(cmd.ToUpper(), out command))
+                {
+                    command.Execute(reply);
+                }
+                else
+                {
+                    MainWindow.AddLogEntry("Cmd: Unknown Cmd: " + cmd);
+                }
             }
         }
 
-        private Command FindKey(string key) {
-            if (_hashTable.ContainsKey(key))
-                return (Command) _hashTable[key];
-            return null;
+        private void AddCommand(Command command) {
+            _hashTable[command.Key.ToUpper()] = command;
         }
 
         public static CommandTable Deserialize(bool DisableInternalCommands) {
@@ -140,10 +137,7 @@ namespace MCEControl {
                                 .GetManifestResourceStream("MCEControl.Resources.MCEControl.commands"));
                     cmds = (CommandTable) serializer.Deserialize(reader);
                     foreach (var cmd in cmds.List) {
-                        if (cmds._hashTable.ContainsKey(cmd.Key.ToUpper())) {
-                            cmds._hashTable.Remove(cmd.Key.ToUpper());
-                        }
-                        cmds._hashTable.Add(cmd.Key.ToUpper(), cmd);
+                        cmds.AddCommand(cmd);
                     }
                 }
                 catch (Exception ex) {
@@ -179,11 +173,8 @@ namespace MCEControl {
                 fs = new FileStream("MCEControl.commands", FileMode.Open, FileAccess.Read);
                 XmlReader reader = new XmlTextReader(fs);
                 userCmds = (CommandTable)serializer.Deserialize(reader);
-                foreach (var cmd in userCmds.List){
-                    if (cmds._hashTable.ContainsKey(cmd.Key.ToUpper())){
-                        cmds._hashTable.Remove(cmd.Key.ToUpper());
-                    }
-                    cmds._hashTable.Add(cmd.Key.ToUpper(), cmd);
+                foreach (var cmd in userCmds.List) {
+                    cmds.AddCommand(cmd);
                 }
                 MainWindow.AddLogEntry(string.Format("MCEC: User defined commands loaded."));
             }
