@@ -758,9 +758,9 @@ namespace MCEControl {
             if (_checkBoxEnableServer.Checked && _checkBoxEnableWakeup.Checked) {
                 UInt32 port = 0;
                 UInt32.TryParse(_editWakeupPort.Text, out port);
-                _buttonOk.Enabled = !(String.IsNullOrEmpty(_editWakeupServer.Text) ||
-                                      String.IsNullOrEmpty(_editWakeupCommand.Text) ||
-                                      String.IsNullOrEmpty(_editClosingCommand.Text) ||
+                _buttonOk.Enabled = !(string.IsNullOrEmpty(_editWakeupServer.Text) ||
+                                      string.IsNullOrEmpty(_editWakeupCommand.Text) ||
+                                      string.IsNullOrEmpty(_editClosingCommand.Text) ||
                                       (port == 0));
                 return;
             }
@@ -768,7 +768,7 @@ namespace MCEControl {
             if (_checkBoxEnableClient.Checked) {
                 UInt32 port = 0;
                 UInt32.TryParse(_editClientPort.Text, out port);
-                _buttonOk.Enabled = !(String.IsNullOrEmpty(_editClientHost.Text) ||
+                _buttonOk.Enabled = !(string.IsNullOrEmpty(_editClientHost.Text) ||
                                       (port == 0));
                 return;
             }
@@ -950,17 +950,17 @@ namespace MCEControl {
         // Server
         public bool ActAsServer = true;
         public int ClientDelayTime = 30000;
-        public String ClientHost;
+        public string ClientHost;
         public int ClientPort;
-        public String ClosingCommand;
+        public string ClosingCommand;
         public int Opacity = 100;
         public int ServerPort = 5150;
-        public String WakeupCommand;
+        public string WakeupCommand;
         public bool WakeupEnabled;
-        public String WakeupHost;
+        public string WakeupHost;
         public int WakeupPort;
         public bool ActAsSerialServer = false;
-        public String SerialServerPortName;
+        public string SerialServerPortName;
         public int SerialServerBaudRate;
         public Parity SerialServerParity;
         public int SerialServerDataBits;
@@ -995,8 +995,8 @@ namespace MCEControl {
         // file for each instance (each being in different directory).
         // However, typical installs get put into to %PROGRAMFILES% which 
         // is ACLd to allow only admin writes on Win7. 
-        public static String GetSettingsPath() {
-            String path = Application.StartupPath;
+        public static string GetSettingsPath() {
+            string path = Application.StartupPath;
             // If app was started from within ProgramFiles then use UserAppDataPath.
             if (path.Contains(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles))) {
                 // Strip off the trailing version ("\\0.0.0.xxxx")
@@ -1020,11 +1020,11 @@ namespace MCEControl {
                 MainWindow.AddLogEntry("MCEC: Wrote settings to " + filePath);
             }
             catch (Exception e) {
-                MessageBox.Show(String.Format("Settings file could not be written. {0}", e.Message));
+                MessageBox.Show(string.Format("Settings file could not be written. {0}", e.Message));
             }
         }
 
-        public static AppSettings Deserialize(String settingsPath) {
+        public static AppSettings Deserialize(string settingsPath) {
             AppSettings settings = null;
 
             var serializer = new XmlSerializer(typeof (AppSettings));
@@ -1055,7 +1055,7 @@ namespace MCEControl {
                                     "DisableInternalCommands", false));
             }
             catch (UnauthorizedAccessException e) {
-                MessageBox.Show(String.Format("Settings file could not be loaded. {0}", e.Message));
+                MessageBox.Show(string.Format("Settings file could not be loaded. {0}", e.Message));
             }
 
             return settings;

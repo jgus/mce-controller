@@ -87,7 +87,7 @@ namespace MCEControl {
                 _mainSocket.BeginAccept(OnClientConnect, null);
             }
             catch (SocketException se) {
-                SendNotification(ServiceNotification.Error, CurrentStatus, null, String.Format("Start: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
+                SendNotification(ServiceNotification.Error, CurrentStatus, null, string.Format("Start: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 SetStatus(ServiceStatus.Stopped);
             }
         }
@@ -136,7 +136,7 @@ namespace MCEControl {
                 BeginReceive(serverReplyContext);
             }
             catch (SocketException se) {
-                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, String.Format("OnClientConnect: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
+                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, string.Format("OnClientConnect: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 // See http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668(v=vs.85).aspx
                 //if (se.SocketErrorCode == SocketError.ConnectionReset) // WSAECONNRESET (10054)
                 {
@@ -146,7 +146,7 @@ namespace MCEControl {
             }
             catch (Exception e)
             {
-                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, String.Format("OnClientConnect: {0}", e.Message));
+                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, string.Format("OnClientConnect: {0}", e.Message));
                 CloseSocket(serverReplyContext);
             }
 
@@ -167,7 +167,7 @@ namespace MCEControl {
                                     serverReplyContext);
             }
             catch (SocketException se) {
-                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, String.Format("BeginReceive: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
+                SendNotification(ServiceNotification.Error, CurrentStatus, serverReplyContext, string.Format("BeginReceive: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 CloseSocket(serverReplyContext);
             }
         }
@@ -285,18 +285,18 @@ namespace MCEControl {
             catch (SocketException se) {
                 if (se.SocketErrorCode == SocketError.ConnectionReset) // Error code for Connection reset by peer 
                 {
-                    SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, String.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
+                    SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, string.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                     CloseSocket(clientContext);
                 }
                 else {
-                    SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, String.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
+                    SendNotification(ServiceNotification.Error, CurrentStatus, clientContext, string.Format("OnDataReceived: {0}, {1:X} ({2})", se.Message, se.HResult, se.SocketErrorCode));
                 }
             }
         }
 
-        public void SendAwakeCommand(String cmd, String host, int port) {
+        public void SendAwakeCommand(string cmd, string host, int port) {
             _log4.Debug("SocketServer SendAwakeCommand");
-            if (String.IsNullOrEmpty(host)) {
+            if (string.IsNullOrEmpty(host)) {
                 SendNotification(ServiceNotification.Wakeup, CurrentStatus, null, "No wakeup host specified.");
                 return;
             }
@@ -313,8 +313,8 @@ namespace MCEControl {
                     // Create the endpoint that describes the destination
                     var destination = new IPEndPoint(resolvedHost.AddressList[0], port);
 
-                    SendNotification(ServiceNotification.Wakeup, CurrentStatus, null, 
-                                     String.Format("Attempting connection to: {0}", destination));
+                    SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
+                                     string.Format("Attempting connection to: {0}", destination));
                     clientSocket.Connect(destination);
                 }
                 catch (SocketException err) {
@@ -322,7 +322,7 @@ namespace MCEControl {
                     clientSocket.Close();
                     clientSocket = null;
                     SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
-                                     "Error connecting.\r\n" + String.Format("   Error: {0}", err.Message));
+                                     "Error connecting.\r\n" + string.Format("   Error: {0}", err.Message));
                 }
                 // Make sure we have a valid socket before trying to use it
                 if ((clientSocket != null)) {
@@ -338,7 +338,7 @@ namespace MCEControl {
                     catch (SocketException err) {
                         SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
                                          "Error occured while sending or receiving data.\r\n" +
-                                         String.Format("   Error: {0}", err.Message));
+                                         string.Format("   Error: {0}", err.Message));
                     }
                 }
                 else {
@@ -348,7 +348,7 @@ namespace MCEControl {
             }
             catch (SocketException err) {
                 SendNotification(ServiceNotification.Wakeup, CurrentStatus, null,
-                                 String.Format("Socket error occured: {0}", err.Message));
+                                 string.Format("Socket error occured: {0}", err.Message));
             }
         }
 
@@ -376,7 +376,7 @@ namespace MCEControl {
                 set { } 
             }
 
-            public override void Write(String text)
+            public override void Write(string text)
             {
                 if (_server == null 
                     || _server.CurrentStatus != ServiceStatus.Connected 

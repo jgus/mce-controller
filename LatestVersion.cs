@@ -13,7 +13,7 @@ namespace MCEControl
         public static Version CurrentVersion{
             get { return new Version(Application.ProductVersion); }
         }
-        public String ErrorMessage { get; private set; }
+        public string ErrorMessage { get; private set; }
         public Version LatestStableRelease { get; private set; }
 
         public async void GetLatestStableVersionAsync(GotVersionInfo callback) {

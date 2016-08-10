@@ -18,8 +18,8 @@ namespace MCEControl {
     /// Summary description for StartProcessCommands.
     /// </summary>
     public class StartProcessCommand : Command {
-        [XmlAttribute("File")] public String File;
-        [XmlAttribute("Arguments")] public String Arguments;
+        [XmlAttribute("File")] public string File;
+        [XmlAttribute("Arguments")] public string Arguments;
 
         [XmlElement("StartProcess", typeof (StartProcessCommand))] 
         [XmlElement("SendInput", typeof (SendInputCommand))] 

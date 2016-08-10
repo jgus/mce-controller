@@ -47,7 +47,7 @@ namespace MCEControl {
         //-----------------------------------------------------------
         // Control functions (Start, Stop, etc...)
         //-----------------------------------------------------------
-        public void Start(String portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, Handshake handshake) {
+        public void Start(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits, Handshake handshake) {
 
             if (_serialPort != null || _readThread != null)
                 Stop();
@@ -80,7 +80,7 @@ namespace MCEControl {
                 Stop();
             }
             catch (UnauthorizedAccessException uae) {
-                Error(String.Format("Port in use? {0} ({1})", uae.Message, GetSettingsDisplayString()));
+                Error(string.Format("Port in use? {0} ({1})", uae.Message, GetSettingsDisplayString()));
                 Stop();
             }
             catch (Exception e) {
@@ -96,11 +96,11 @@ namespace MCEControl {
         }
 
         // Returns a string with serial settings, e.g. "COM1 9600 baud N81 Xon/Xoff"
-        public String GetSettingsDisplayString()
+        public string GetSettingsDisplayString()
         {
             if (_serialPort == null)
                 return "";
-            String p = "";
+            string p = "";
             switch (_serialPort.Parity)
             {
                 case Parity.Space:
@@ -117,7 +117,7 @@ namespace MCEControl {
                     break;
             }
 
-            String sbits = "";
+            string sbits = "";
             switch (_serialPort.StopBits)
             {
                 case StopBits.OnePointFive:
@@ -131,7 +131,7 @@ namespace MCEControl {
                     break;
             }
 
-            String hand = "";
+            string hand = "";
             switch (_serialPort.Handshake)
             {
                 case Handshake.RequestToSend:
@@ -148,12 +148,12 @@ namespace MCEControl {
                     break;
             }
 
-            return String.Format("{0} {1} baud {2}{3}{4} {5}", _serialPort.PortName, _serialPort.BaudRate, p, _serialPort.DataBits, sbits, hand);
+            return string.Format("{0} {1} baud {2}{3}{4} {5}", _serialPort.PortName, _serialPort.BaudRate, p, _serialPort.DataBits, sbits, hand);
         }
 
         private void Read()
         {
-            Debug.WriteLine(String.Format("Serial Read thread starting: {0}", GetSettingsDisplayString()));
+            Debug.WriteLine(string.Format("Serial Read thread starting: {0}", GetSettingsDisplayString()));
             StringBuilder sb = new StringBuilder();
             while (true)
             {
@@ -196,7 +196,7 @@ namespace MCEControl {
             public SerialReplyContext(SerialPort rs232) {
                 _rs232 = rs232;
             }
-            public override void Write(String text) {
+            public override void Write(string text) {
                 if (_rs232 != null && _rs232.IsOpen) {
                     _rs232.Write(text);
                 }

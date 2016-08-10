@@ -20,11 +20,11 @@ namespace MCEControl
     /// Simulates mouse movements.
     /// </summary>
     class MouseCommand : Command  {
-        private String _action ;
-        private String[] _parameters;
+        private string _action ;
+        private string[] _parameters;
         public static readonly string CmdPrefix = "mouse:";
 
-        public MouseCommand(String cmd) {
+        public MouseCommand(string cmd) {
             _parameters = cmd.Substring(CmdPrefix.Length, cmd.Length - CmdPrefix.Length).Split(',');
             if (_parameters.Length > 0)
                 _action = _parameters[0];
@@ -66,7 +66,7 @@ namespace MCEControl
             }
         }
 
-        private int GetIntOrZero(String[] s, int index) {
+        private int GetIntOrZero(string[] s, int index) {
             int val = 0;
             if (index >= s.Length) return val;
             int.TryParse(s[index], out val);

@@ -30,7 +30,7 @@ namespace MCEControl {
         public SendMessageCommand() {
         }
 
-        public SendMessageCommand(String className, String windowName, DWORD msg, DWORD wParam, DWORD lParam) {
+        public SendMessageCommand(string className, string windowName, DWORD msg, DWORD wParam, DWORD lParam) {
             ClassName = className;
             WindowName = windowName;
             Msg = (int) msg;
@@ -39,10 +39,10 @@ namespace MCEControl {
         }
 
         [XmlAttribute("ClassName")]
-        public String ClassName { get; set; }
+        public string ClassName { get; set; }
 
         [XmlAttribute("WindowName")]
-        public String WindowName { get; set; }
+        public string WindowName { get; set; }
 
         public override void Execute(Reply reply)
         {
@@ -52,7 +52,7 @@ namespace MCEControl {
                     if (procs.Length > 0) {
                         var h = procs[0].MainWindowHandle;
 
-                        MainWindow.AddLogEntry(String.Format("Cmd: SendMessage ({0}): {1} {2} {3}", ClassName, Msg, WParam,
+                        MainWindow.AddLogEntry(string.Format("Cmd: SendMessage ({0}): {1} {2} {3}", ClassName, Msg, WParam,
                                                              LParam));
                         Win32.SendMessage(h, (DWORD) Msg, (DWORD) WParam, (DWORD) LParam);
                     }
@@ -62,7 +62,7 @@ namespace MCEControl {
                 }
                 else {
                     var h = Win32.GetForegroundWindow();
-                    MainWindow.AddLogEntry(String.Format("Cmd: SendMessage (forground window): {0} {1} {2}", Msg, WParam, LParam));
+                    MainWindow.AddLogEntry(string.Format("Cmd: SendMessage (forground window): {0} {1} {2}", Msg, WParam, LParam));
                     Win32.SendMessage(h, (DWORD) Msg, (DWORD) WParam, (DWORD) LParam);
                 }
             }

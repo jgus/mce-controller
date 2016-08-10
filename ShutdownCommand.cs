@@ -16,7 +16,7 @@ namespace MCEControl {
     /// Summary description for ShutdownCommand.
     /// </summary>
     public class ShutdownCommand : Command {
-        [XmlAttribute("Type")] public String Type;
+        [XmlAttribute("Type")] public string Type;
 
         public ShutdownCommand() {
             // Serialzable, must have constructor

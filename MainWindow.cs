@@ -438,23 +438,23 @@ namespace MCEControl {
         }
 
         private void CheckVersion() {
-            AddLogEntry(String.Format("MCEC: Version: {0}", Application.ProductVersion));
+            AddLogEntry(string.Format("MCEC: Version: {0}", Application.ProductVersion));
             var lv = new LatestVersion();
             lv.GetLatestStableVersionAsync((o, version) => {
-                if (version == null && !String.IsNullOrWhiteSpace(lv.ErrorMessage)) {
+                if (version == null && !string.IsNullOrWhiteSpace(lv.ErrorMessage)) {
                     AddLogEntry(
-                        String.Format(
+                        string.Format(
                             "MCEC: Could not access mcec.codeplex.com to see if a newer version is available. {0}",
                             lv.ErrorMessage));
                 }
                 else if (lv.CompareVersions() < 0) {
                     AddLogEntry(
-                        String.Format(
+                        string.Format(
                             "MCEC: A newer version of MCE Controller ({0}) is available at mcec.codeplex.com.", version));
                 }
                 else if (lv.CompareVersions() > 0) {
                     AddLogEntry(
-                        String.Format(
+                        string.Format(
                             "MCEC: You are are running a MORE recent version than can be found at mcec.codeplex.com ({0}).",
                             version));
                 }
@@ -592,12 +592,12 @@ namespace MCEControl {
             }
         }
 
-        private void ReceivedData(Reply reply, String cmd) {
+        private void ReceivedData(Reply reply, string cmd) {
             try {
                 CmdTable.Execute(reply, cmd);
             }
             catch (Exception e) {
-                AddLogEntry(String.Format("Command: ({0}) error: {1}", cmd, e));
+                AddLogEntry(string.Format("Command: ({0}) error: {1}", cmd, e));
             }
         }
 
@@ -616,7 +616,7 @@ namespace MCEControl {
         //
         // Notify callback for the TCP/IP Server
         //
-        public void HandleSocketServerCallbacks(ServiceNotification notification, ServiceStatus status, Reply reply, String msg) {
+        public void HandleSocketServerCallbacks(ServiceNotification notification, ServiceStatus status, Reply reply, string msg) {
             if (notification == ServiceNotification.StatusChange)
                 HandleSocketServerStatusChange(status);
             else 
@@ -624,15 +624,15 @@ namespace MCEControl {
         }
 
         private void HandleSocketServerNotification(ServiceNotification notification, ServiceStatus status,
-            SocketServer.ServerReplyContext serverReplyContext, String msg)
+            SocketServer.ServerReplyContext serverReplyContext, string msg)
         {
-            String s = "";
+            string s = "";
 
             switch (notification)
             {
                 case ServiceNotification.ReceivedData:
                     Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null, notification.ToString());
-                    s = String.Format("Server: Received from Client #{0} at {1}: {2}",
+                    s = string.Format("Server: Received from Client #{0} at {1}: {2}",
                         serverReplyContext.ClientNumber, serverReplyContext.Socket.RemoteEndPoint, msg);
                     AddLogEntry(s);
                     ReceivedData(serverReplyContext, msg);
@@ -640,25 +640,25 @@ namespace MCEControl {
 
                 case ServiceNotification.Write:
                     Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null, notification.ToString());
-                    s = String.Format("Wrote to Client #{0} at {1}: {2}",
+                    s = string.Format("Wrote to Client #{0} at {1}: {2}",
                         serverReplyContext.ClientNumber, serverReplyContext.Socket.RemoteEndPoint, msg);
                     break;
 
                 case ServiceNotification.WriteFailed:
                     Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null, notification.ToString());
-                    s = String.Format("Write failed to Client #{0} at {1}: {2}",
+                    s = string.Format("Write failed to Client #{0} at {1}: {2}",
                         serverReplyContext.ClientNumber, serverReplyContext.Socket.RemoteEndPoint, msg);
                     break;
 
                 case ServiceNotification.ClientConnected:
                     Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null, notification.ToString());
-                    s = String.Format("Client #{0} at {1} connected.",
+                    s = string.Format("Client #{0} at {1} connected.",
                         serverReplyContext.ClientNumber, serverReplyContext.Socket.RemoteEndPoint);
                     break;
 
                 case ServiceNotification.ClientDisconnected:
                     Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null, notification.ToString());
-                    s = String.Format("Client #{0} at {1} has disconnected.",
+                    s = string.Format("Client #{0} at {1} has disconnected.",
                         serverReplyContext.ClientNumber, serverReplyContext.Socket.RemoteEndPoint);
                     break;
 
@@ -672,14 +672,14 @@ namespace MCEControl {
                         case ServiceStatus.Waiting:
                         case ServiceStatus.Stopped:
                         case ServiceStatus.Sleeping:
-                            s = String.Format("{0}: {1}", status, msg);
+                            s = string.Format("{0}: {1}", status, msg);
                             break;
 
                         case ServiceStatus.Connected:
                             if (serverReplyContext != null) {
                                 Debug.Assert(serverReplyContext.Socket != null);
                                 Debug.Assert(serverReplyContext.Socket.RemoteEndPoint != null);
-                                s = String.Format("(Client #{0} at {1}): {2}",
+                                s = string.Format("(Client #{0} at {1}): {2}",
                                     serverReplyContext.ClientNumber,
                                     serverReplyContext.Socket == null
                                         ? "n/a"
@@ -701,7 +701,7 @@ namespace MCEControl {
         }
 
         private void HandleSocketServerStatusChange(ServiceStatus status) {
-            String s = "";
+            string s = "";
             switch (status)
             {
                 case ServiceStatus.Started:
@@ -734,9 +734,9 @@ namespace MCEControl {
         //
         // Notify callback for the TCP/IP Client
         //
-        public void HandleClientNotifications(ServiceNotification notify, ServiceStatus status, Reply reply, String msg)
+        public void HandleClientNotifications(ServiceNotification notify, ServiceStatus status, Reply reply, string msg)
         {
-            String s = null;
+            string s = null;
             switch (notify) {
                 case ServiceNotification.StatusChange:
                     if (status == ServiceStatus.Started) {
@@ -763,7 +763,7 @@ namespace MCEControl {
                     break;
 
                 case ServiceNotification.ReceivedData:
-                    AddLogEntry(String.Format("Client: Received; {0}", msg));
+                    AddLogEntry(string.Format("Client: Received; {0}", msg));
                     ReceivedData(reply, (string) msg);
                     return;
 
@@ -782,20 +782,20 @@ namespace MCEControl {
         //
         // Notify callback for the Serial Server
         //
-        public void HandleSerialServerNotifications(ServiceNotification notify, ServiceStatus status, Reply reply, String msg)
+        public void HandleSerialServerNotifications(ServiceNotification notify, ServiceStatus status, Reply reply, string msg)
         {
-            String s = null;
+            string s = null;
             switch (notify)
             {
                 case ServiceNotification.StatusChange:
                     switch (status)
                     {
                         case ServiceStatus.Started:
-                            s = String.Format("SerialServer: Opening port: {0}", msg);
+                            s = string.Format("SerialServer: Opening port: {0}", msg);
                             break;
 
                         case ServiceStatus.Waiting:
-                            s = String.Format("SerialServer: Waiting for commands on {0}...", msg);
+                            s = string.Format("SerialServer: Waiting for commands on {0}...", msg);
                             SetStatusBar("Waiting for Serial commands...");
                             break;
 
@@ -807,12 +807,12 @@ namespace MCEControl {
                     break;
 
                 case ServiceNotification.ReceivedData:
-                    AddLogEntry(String.Format("SerialServer: Received: {0}", msg));
+                    AddLogEntry(string.Format("SerialServer: Received: {0}", msg));
                     ReceivedData(reply, (string)msg);
                     return;
 
                 case ServiceNotification.Error:
-                    s = String.Format("SerialServer: Error: {0}", msg);
+                    s = string.Format("SerialServer: Error: {0}", msg);
                     break;
 
                 default:
@@ -822,7 +822,7 @@ namespace MCEControl {
             AddLogEntry(s);
         }
 
-        public static void AddLogEntry(String text)
+        public static void AddLogEntry(string text)
         {   
             if (MainWnd == null) return;
 
@@ -844,7 +844,7 @@ namespace MCEControl {
         }
 
         private delegate void AddLogEntryUiThreadCallback(string text);
-        private static void AddLogEntryUiThread(String text) {
+        private static void AddLogEntryUiThread(string text) {
             MainWnd._log.AppendText("[" + DateTime.Now.ToString("yy'-'MM'-'dd' 'HH':'mm':'ss") + "] " + text +
                                         Environment.NewLine);
         }

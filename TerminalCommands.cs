@@ -22,7 +22,7 @@ namespace MCEControl
     class McecCommand : Command {
         public static readonly string CmdPrefix = "mcec:";
 
-        public McecCommand(String cmd) {
+        public McecCommand(string cmd) {
             Key = cmd.Substring(CmdPrefix.Length, cmd.Length - CmdPrefix.Length);
         }
 
@@ -79,11 +79,11 @@ namespace MCEControl
             }
 
             // Reply.  
-            replyBuilder.Insert(0, String.Format("{0}=", Key));
+            replyBuilder.Insert(0, string.Format("{0}=", Key));
             Reply(reply, replyBuilder.ToString());
         }
 
-        private void Reply(Reply reply, String msg) {
+        private void Reply(Reply reply, string msg) {
             MainWindow.AddLogEntry("Cmd: Sending reply: " + msg);
             reply.WriteLine(msg);
         }

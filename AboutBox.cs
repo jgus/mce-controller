@@ -37,7 +37,7 @@ namespace MCEControl {
             //
             InitializeComponent();
 
-            appNameLabel.Text = String.Format(Resources.MCE_Controller_Version_label, Resources.App_FullName, LatestVersion.CurrentVersion);
+            appNameLabel.Text = string.Format(Resources.MCE_Controller_Version_label, Resources.App_FullName, LatestVersion.CurrentVersion);
 
             copyrightLink.Text = Resources.Copyright;
             copyrightLink.Tag = Resources.Copyright_Link;

@@ -93,7 +93,7 @@ namespace MCEControl {
         }
 
         // Send text to remote connection
-        public void Send(String newText) {
+        public void Send(string newText) {
             if (!_tcpClient.Connected || _bw.CancellationPending) return;
             try {
                 byte[] buf = System.Text.ASCIIEncoding.ASCII.GetBytes(newText.Replace("\0xFF", "\0xFF\0xFF"));
@@ -105,7 +105,7 @@ namespace MCEControl {
         }
 
         private void Connect() {
-            SetStatus(ServiceStatus.Started, String.Format("{0}:{1}", _host, _port));
+            SetStatus(ServiceStatus.Started, string.Format("{0}:{1}", _host, _port));
 
             IPEndPoint endPoint;
             try {
@@ -155,7 +155,7 @@ namespace MCEControl {
                                 break;
 
                             default:
-                                Error(String.Format("SocketException. ErrorCode: {0}{1}{2}", e.ErrorCode,
+                                Error(string.Format("SocketException. ErrorCode: {0}{1}{2}", e.ErrorCode,
                                                             Environment.NewLine, e.Message));
                                 break;
                         }
@@ -178,20 +178,20 @@ namespace MCEControl {
                                     break;
 
                                 default:
-                                    Error(String.Format("SocketException (RecieveData). ErrorCode: {0}{1}{2}",
+                                    Error(string.Format("SocketException (RecieveData). ErrorCode: {0}{1}{2}",
                                                                 sockExcept.ErrorCode, Environment.NewLine, e.Message));
                                     break;
                             }
                         }
                         else {
-                            Error(String.Format("IOException. {0}", e.Message));
+                            Error(string.Format("IOException. {0}", e.Message));
                         }
                     }
                 }, null);
             }
             catch (SocketException e)
             {
-                Error(String.Format("SocketException. ErrorCode: {0}{1}{2}", e.ErrorCode,
+                Error(string.Format("SocketException. ErrorCode: {0}{1}{2}", e.ErrorCode,
                                                         Environment.NewLine, e.Message));
                 _tcpClient.Close();
                 return;
@@ -208,7 +208,7 @@ namespace MCEControl {
                 _tcpClient = tcpClient;
             }
 
-            public override void Write(String text) {
+            public override void Write(string text) {
                 if (!_tcpClient.Connected) return;
 
                 byte[] buf = System.Text.Encoding.ASCII.GetBytes(text.Replace("\0xFF", "\0xFF\0xFF"));
