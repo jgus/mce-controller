@@ -39,11 +39,11 @@ namespace MCEControl
                 switch (Type.ToLower())
                 {
                     case "shutdown":
-                        sc.Shutdown("MCE Controller Forced Shutdown", 30, true, false);
+                        sc.Shutdown("MCE Controller Shutdown", 3, true, false);
                         break;
 
                     case "restart":
-                        sc.Shutdown("MCE Controller Forced Restart", 30, true, true);
+                        sc.Shutdown("MCE Controller Restart", 3, true, true);
                         break;
 
                     case "standby":
