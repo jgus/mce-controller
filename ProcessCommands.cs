@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Xml.Serialization;
@@ -27,6 +28,14 @@ namespace MCEControl
         public string Arguments;
         [XmlAttribute("StopCmd")]
         public string StopCommand;
+        [XmlAttribute("StopFile")]
+        public string StopFile;
+        [XmlAttribute("StopArguments")]
+        public string StopArguments;
+
+        [DefaultValue(true)]
+        [XmlAttribute("LogErrors")]
+        public bool LogErrors;
 
         [XmlElement("StartProcess", typeof(StartProcessCommand))]
         [XmlElement("SendInput", typeof(SendInputCommand))]
@@ -42,7 +51,15 @@ namespace MCEControl
             Stop(reply);
             if (File != null)
             {
-                executor = new Executor(File, Arguments);
+                executor = new Executor(File, Arguments, LogErrors);
+                if (!string.IsNullOrWhiteSpace(StopFile))
+                {
+                    executor.StopExecutor = new Executor(StopFile, StopArguments, LogErrors);
+                }
+                else if (!string.IsNullOrWhiteSpace(StopArguments))
+                {
+                    executor.StopExecutor = new Executor(File, StopArguments, LogErrors);
+                }
                 executor.Run();
 
                 if (NextCommand != null)
@@ -72,23 +89,31 @@ namespace MCEControl
 
         private class Executor
         {
-            public Executor(string File, string Arguments)
+            public Executor StopExecutor = null;
+
+            public Executor(string File, string Arguments, bool logErrors)
             {
-                process = new Process
+                this.logErrors = logErrors;
+                var startInfo = new ProcessStartInfo
                 {
-                    StartInfo =
-                    {
-                        FileName = File,
-                        Arguments = Arguments,
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                    },
+                    FileName = File,
+                    Arguments = Arguments,
+                    WorkingDirectory = new System.IO.FileInfo(File).DirectoryName,
                 };
-                process.OutputDataReceived += OnOutputReceived;
-                process.ErrorDataReceived += OnErrorReceived;
-                process.EnableRaisingEvents = true;
+                if (logErrors)
+                {
+                    startInfo.UseShellExecute = true;
+                    startInfo.CreateNoWindow = true;
+                    startInfo.RedirectStandardOutput = true;
+                    startInfo.RedirectStandardError = true;
+                }
+                process = new Process { StartInfo = startInfo };
+                if (logErrors)
+                {
+                    process.OutputDataReceived += OnOutputReceived;
+                    process.ErrorDataReceived += OnErrorReceived;
+                    process.EnableRaisingEvents = true;
+                }
             }
 
             public void Run()
@@ -97,16 +122,55 @@ namespace MCEControl
                 {
                     process.Start();
                     Log($"Started process \"{process.StartInfo.FileName}\" with arguments \"{process.StartInfo.Arguments}\"");
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
+                    if (logErrors)
+                    {
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+                    }
                     process.WaitForExit();
-                    Log($"Process exited with code {process.ExitCode}");
+                    Log($"Process exited with code {process.ExitCode} (0x{process.ExitCode:X})");
                 }).Start();
             }
 
             public void Stop()
             {
-                process.CloseMainWindow();
+                bool exited = false;
+                try
+                {
+                    if (StopExecutor != null)
+                    {
+                        StopExecutor.Run();
+                    }
+                    else
+                    {
+                        process.CloseMainWindow();
+                    }
+                    exited = WaitForExit(ExitTimeout);
+                }
+                catch (Exception)
+                {
+                    // Ignore
+                }
+                if (!exited)
+                {
+                    try
+                    {
+                        process.Kill();
+                    }
+                    catch (Exception)
+                    {
+                        // Ignore
+                    }
+                }
+                if (StopExecutor != null)
+                {
+                    StopExecutor.Stop();
+                }
+            }
+
+            public bool WaitForExit(TimeSpan timeSpan)
+            {
+                return process.WaitForExit((int)timeSpan.TotalMilliseconds);
             }
 
             public void WaitForInputIdle(TimeSpan timeSpan)
@@ -115,6 +179,9 @@ namespace MCEControl
             }
 
             private Process process;
+            private bool logErrors;
+
+            private TimeSpan ExitTimeout { get { return TimeSpan.FromSeconds(5); } }
 
             private void Log(string message)
             {
